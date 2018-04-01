@@ -30,8 +30,8 @@ class OpportunityDataset:
                                     sio.loadmat(dataset_root + "S4-Drill.mat")['data']]}
         # Mapping from sensor names to matrix columns
         self.data_map = {"T": [0], "RWR": [1, 2, 3], "LWR": [4, 5, 6],
-                         "BACK": range(7, 20), "RUA": range(20, 33), "LUA": range(33, 46),
-                         "RLA": range(46, 59), "LLA": range(59, 72)}
+                         "BACK": list(range(7, 20)), "RUA": list(range(20, 33)), "LUA": list(range(33, 46)),
+                         "RLA": list(range(46, 59)), "LLA": list(range(59, 72))}
         self.data_map["AccelWristSensors"] = self.data_map["T"] + self.data_map["RWR"] + self.data_map["LWR"]
         self.data_map["ImuWristSensors"] = self.data_map["AccelWristSensors"] + self.data_map["RLA"] + self.data_map[
             "LLA"]
