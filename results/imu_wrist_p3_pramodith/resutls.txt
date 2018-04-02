@@ -1,0 +1,7 @@
+RF_300 estimators 0.59 F1 w 5 st 2
+MLP_1000 adam,relu 0.29
+MLP_1000 adam,tanh 0.238
+MLP_500 relu,sgd 0.244
+Adagrad default 0.0587856841916
+rf_norm 0.39
+rf_no_norm_500_10 0.634
