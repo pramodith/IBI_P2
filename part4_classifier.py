@@ -9,8 +9,8 @@ class Part4Classifier:
         # Set Hyper Params here
         self.model = None
         self.gbc_params = {
-            "n_estimators": 500,
-            "max_depth": 6,
+            "n_estimators": 80,
+            "max_depth": 5,
             "random_state": 0,
             "verbose": 1
         }
@@ -22,10 +22,11 @@ class Part4Classifier:
     def train(self, X, Y):
         print("Training... ", len(X))
         self.train_gbc(X, Y)
-        self.save_model()
+        # self.save_model()
 
     def train_gbc(self, X, Y):
-        model = GradientBoostingClassifier(self.gbc_params)
+        model = GradientBoostingClassifier()
+        model.set_params(**self.gbc_params)
         model.fit(X, Y)
         self.model = model
 

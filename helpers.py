@@ -35,10 +35,7 @@ def eval_preds(Y_pred, Y_test, classes):
     cm = confusion_matrix(Y_test, Y_pred)
     plot_confusion_matrix(cm, classes)
     score = f1_score(Y_test, Y_pred, average='weighted')
-    print
-    "Weighted F-Score:"
-    print
-    score
+    print("Weighted F-Score:", score)
 
 
 def plot_confusion_matrix(cm, classes,

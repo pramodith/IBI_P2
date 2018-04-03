@@ -3,6 +3,7 @@ from opportunity_dataset import OpportunityDataset
 import numpy as np
 from scipy.stats import mode
 from part4_classifier import Part4Classifier
+from sklearn.externals import joblib
 
 
 # import imu_wrist_p3
@@ -90,7 +91,7 @@ def test(X, model):
     return model["clf"].predict(X)
 
 
-def cv_train_test(dataset, sensors, labels, window, stride):
+def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
     """
     Template code for performing leave on subject out cross-validation
     """
@@ -116,6 +117,7 @@ def cv_train_test(dataset, sensors, labels, window, stride):
         # print(Counter(Y_test))
         Y_test = np.asarray(Y_test)
         model = train(X_train, Y_train)
+        joblib.dump(model["clf"], model_file_name + "sub:{}-model.pkl".format(subj))
 
         # Make predictions on the test set here
         Y_pred = test(X_test, model)
@@ -135,16 +137,20 @@ def custom_run():
     """
     # Example inputs to cv_train_test function, you would use
     # these inputs for  problem 2
-    window_sizes = [5]
-    strides = [2]
+    window_sizes = [5, 10, 15]
+    strides = [2, 3, 5]
+    print("Window Sizes: {}, Strides: {}\n".format(window_sizes, strides))
     dataset = OpportunityDataset()
     sensors = dataset.data_map["FullBodySensors"]
-
-    print(test_imputation(dataset))
+    print("Computing Imputation error...")
+    imputation_diff = test_imputation(dataset)
+    print("Imputation error: {} \n".format(imputation_diff))
     # Locomotion labels
-    for i in range(0, len(window_sizes)):
-        for j in range(0, len(strides)):
-            cv_train_test(dataset, sensors, dataset.locomotion_labels, window_sizes[i], strides[j])
+    for window_size in window_sizes:
+        for stride in strides:
+            print("Window Size: {}, stride:{} \n".format(window_size, stride))
+            cv_train_test(dataset, sensors, dataset.locomotion_labels, window_size, stride,
+                          model_file_name="FullBodySensors-W{}-S{}".format(window_size, stride))
 
 
 if __name__ == "__main__":
