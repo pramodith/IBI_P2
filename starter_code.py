@@ -3,7 +3,9 @@ from opportunity_dataset import OpportunityDataset
 import numpy as np
 from scipy.stats import mode
 from part4_classifier import Part4Classifier
-import imu_wrist_p3
+
+
+# import imu_wrist_p3
 
 def create_io_pairs(inputs, labels, window_size, stride):
     """
@@ -34,6 +36,7 @@ def impute_data(arr):
     :param arr:
     :return:
     """
+    arr = arr.T
     row_len = len(arr[0])
     delete_indices = []
     for cnt, row in enumerate(arr):
@@ -49,6 +52,7 @@ def impute_data(arr):
             arr[cnt] = row
     arr = np.delete(arr, delete_indices)
     arr = arr.reshape(-1, row_len)
+    arr = arr.T
     return arr
 
 
@@ -124,7 +128,11 @@ def cv_train_test(dataset, sensors, labels, window, stride):
     eval_preds(Y_pred_total, Y_test_total, labels["classes"])
 
 
-if __name__ == "__main__":
+def custom_run():
+    """
+    Run
+    :return:
+    """
     # Example inputs to cv_train_test function, you would use
     # these inputs for  problem 2
     window_sizes = [5]
@@ -137,6 +145,10 @@ if __name__ == "__main__":
     for i in range(0, len(window_sizes)):
         for j in range(0, len(strides)):
             cv_train_test(dataset, sensors, dataset.locomotion_labels, window_sizes[i], strides[j])
+
+
+if __name__ == "__main__":
+    custom_run()
 
 # Activity labels
 # cv_train_test(dataset, sensors, dataset.activity_labels)
