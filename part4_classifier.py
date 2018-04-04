@@ -10,7 +10,7 @@ class Part4Classifier:
         self.model = None
         self.gbc_params = {
             "n_estimators": 80,
-            "max_depth": 5,
+            "max_depth": 4,
             "random_state": 0,
             "verbose": 1
         }

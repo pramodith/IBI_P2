@@ -130,31 +130,47 @@ def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
     eval_preds(Y_pred_total, Y_test_total, labels["classes"])
 
 
-def custom_run():
+def custom_run(is_locomotion, sensor_data_field, window_size, stride):
     """
     Run
     :return:
     """
+
+    SENSORS = ["AccelWristSensors", "ImuWristSensors", "FullBodySensors"]
+    assert sensor_data_field in SENSORS
+
     # Example inputs to cv_train_test function, you would use
     # these inputs for  problem 2
-    window_sizes = [5, 10, 15]
-    strides = [2, 3, 5]
-    print("Window Sizes: {}, Strides: {}\n".format(window_sizes, strides))
     dataset = OpportunityDataset()
-    sensors = dataset.data_map["FullBodySensors"]
-    print("Computing Imputation error...")
-    imputation_diff = test_imputation(dataset)
-    print("Imputation error: {} \n".format(imputation_diff))
-    # Locomotion labels
-    for window_size in window_sizes:
-        for stride in strides:
-            print("Window Size: {}, stride:{} \n".format(window_size, stride))
-            cv_train_test(dataset, sensors, dataset.locomotion_labels, window_size, stride,
-                          model_file_name="FullBodySensors-W{}-S{}".format(window_size, stride))
+
+    if is_locomotion:
+        print("Locomotion labels")
+    else:
+        print("Activity labels")
+
+    sensors = dataset.data_map[sensor_data_field]
+    labels = dataset.locomotion_labels if is_locomotion else dataset.activity_labels
+
+    print("Training...")
+    print("Window Size: {}, stride:{} \n".format(window_size, stride))
+    cv_train_test(dataset, sensors, labels, window_size, stride,
+                  model_file_name="FullBodySensors-W{}-S{}".format(window_size, stride))
 
 
 if __name__ == "__main__":
-    custom_run()
+
+    print("Computing Imputation error...")
+    imputation_diff = test_imputation(dataset)
+    print("Imputation error: {} \n".format(imputation_diff))
+
+
+    window_sizes = [5, 10, 15]
+    strides = [2, 3, 5]
+
+    print("Window Sizes: {}, Strides: {}\n".format(window_sizes, strides))
+    for w_size in window_sizes:
+        for stryd in strides:
+            custom_run(False, "FullBodySensors", w_size, stryd)
 
 # Activity labels
 # cv_train_test(dataset, sensors, dataset.activity_labels)
