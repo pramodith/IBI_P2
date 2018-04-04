@@ -1,6 +1,6 @@
 from sklearn.svm import SVC
 from sklearn.externals import joblib
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 
 
 class Part4Classifier:
@@ -14,23 +14,37 @@ class Part4Classifier:
             "random_state": 0,
             "verbose": 1
         }
+        self.rf_params = {
+            "n_estimators": 500,
+            "max_depth": 4,
+            "random_state": 0,
+            "verbose": 1
+        }
 
     def predict(self, X):
         print("Predicting... ", len(X))
         return self.model.predict(X)
 
     def train(self, X, Y):
-        print("Training... ", len(X))
         self.train_gbc(X, Y)
         # self.save_model()
 
+    def train_random_forest(self, X, Y):
+        print("Classifier: RandomForestClassifier.\nTraining... ", len(X))
+        model = RandomForestClassifier()
+        model.set_params(**self.rf_params)
+        model.fit(X, Y)
+        self.model = model
+
     def train_gbc(self, X, Y):
+        print("Classifier: GradientBoostingClassifier.\nTraining... ", len(X))
         model = GradientBoostingClassifier()
         model.set_params(**self.gbc_params)
         model.fit(X, Y)
         self.model = model
 
     def train_svc(self, X, Y):
+        print("Classifier: SVC.\nTraining... ", len(X))
         self.model = SVC(verbose=True)
         self.model.fit(X, Y)
 

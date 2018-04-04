@@ -98,7 +98,6 @@ def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
     subjects = dataset.subject_data.keys()
     Y_pred_total, Y_test_total = [], []
 
-    print("Subjects: ", subjects)
     # Leave one subject out cross validation
     for subj in subjects:
         print("Subject: ", subj)
@@ -138,10 +137,12 @@ def custom_run(is_locomotion, sensor_data_field, window_size, stride):
 
     SENSORS = ["AccelWristSensors", "ImuWristSensors", "FullBodySensors"]
     assert sensor_data_field in SENSORS
+    print("Loading Dataset...")
 
     # Example inputs to cv_train_test function, you would use
     # these inputs for  problem 2
     dataset = OpportunityDataset()
+    print("Done...")
 
     if is_locomotion:
         print("Locomotion labels")
@@ -152,9 +153,9 @@ def custom_run(is_locomotion, sensor_data_field, window_size, stride):
     labels = dataset.locomotion_labels if is_locomotion else dataset.activity_labels
 
     print("Training...")
-    print("Window Size: {}, stride:{} \n".format(window_size, stride))
+    print("Window Size: {}, stride:{} ".format(window_size, stride))
     cv_train_test(dataset, sensors, labels, window_size, stride,
-                  model_file_name="FullBodySensors-W{}-S{}".format(window_size, stride))
+                  model_file_name="{}-W{}-S{}".format(sensor_data_field, window_size, stride))
 
 
 if __name__ == "__main__":
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     window_sizes = [5, 10, 15]
     strides = [2, 3, 5]
 
-    print("Window Sizes: {}, Strides: {}\n".format(window_sizes, strides))
+    print("Window Sizes: {}, Strides: {}".format(window_sizes, strides))
     for w_size in window_sizes:
         for stryd in strides:
             custom_run(False, "FullBodySensors", w_size, stryd)
