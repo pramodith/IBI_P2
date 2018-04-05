@@ -168,6 +168,20 @@ def custom_run(dataset, is_locomotion, sensor_data_field, window_size, stride, f
                   feature_extraction_method=fem_methods[fem_method])
 
 
+def window_stride_generator(gen_pairs=True):
+    window_sizes = [5, 10, 15]
+    strides = [2, 3, 5]
+    pairs = zip(window_sizes, strides)
+
+    if gen_pairs:
+        for pair in pairs:
+            yield pair[0], pair[1]
+    else:
+        for w_size in window_sizes:
+            for stryd in strides:
+                yield w_size, stryd
+
+
 def main_method():
     print("Loading Dataset...")
     dataset = OpportunityDataset()
@@ -175,12 +189,9 @@ def main_method():
     print("Computing Imputation error...")
     imputation_diff = test_imputation(dataset)
     print("Imputation error: {} \n".format(imputation_diff))
-    window_sizes = [5, 10, 15]
-    strides = [2, 3, 5]
-    print("Window Sizes: {}, Strides: {}".format(window_sizes, strides))
-    for w_size in window_sizes:
-        for stryd in strides:
-            custom_run(dataset, False, "FullBodySensors", w_size, stryd)
+
+    for w, s in window_stride_generator(False):
+        custom_run(dataset, False, "FullBodySensors", w, s)
 
 
 if __name__ == "__main__":
