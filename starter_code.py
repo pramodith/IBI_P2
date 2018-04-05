@@ -8,7 +8,7 @@ from sklearn.externals import joblib
 
 # import imu_wrist_p3
 
-def create_io_pairs(inputs, labels, window_size, stride):
+def create_io_pairs(inputs, labels, window_size, stride, feature_extraction_method):
     """
     [STUDENT] Computes your windowed features here and labels
     :param inputs:
@@ -24,7 +24,7 @@ def create_io_pairs(inputs, labels, window_size, stride):
     for i in range(0, len(X), stride):
         if i + window_size < len(X):
             inp_x = X[i:i + window_size]
-            inp_x = np.mean(inp_x, axis=0)
+            inp_x = feature_extraction_method(inp_x)  # np.mean(inp_x, axis=0)
             out_y = int(np.asscalar(mode(Y[i:i + window_size])[0][0]))
             final_x.append(inp_x)
             final_y.append(out_y)
@@ -91,7 +91,7 @@ def test(X, model):
     return model["clf"].predict(X)
 
 
-def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
+def cv_train_test(dataset, sensors, labels, window, stride, model_file_name, feature_extraction_method):
     """
     Template code for performing leave on subject out cross-validation
     """
@@ -110,9 +110,11 @@ def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
         X_train = impute_data(X_train)
         X_test = impute_data(X_test)
         # Compute features and labels for train and test set
-        X_train, Y_train = create_io_pairs(X_train, Y_train, window, stride)
+        X_train, Y_train = create_io_pairs(X_train, Y_train, window, stride,
+                                           feature_extraction_method=feature_extraction_method)
         # print(Counter(Y_train))
-        X_test, Y_test = create_io_pairs(X_test, Y_test, window, stride)
+        X_test, Y_test = create_io_pairs(X_test, Y_test, window, stride,
+                                         feature_extraction_method=feature_extraction_method)
         # print(Counter(Y_test))
         Y_test = np.asarray(Y_test)
         model = train(X_train, Y_train)
@@ -129,20 +131,26 @@ def cv_train_test(dataset, sensors, labels, window, stride, model_file_name):
     eval_preds(Y_pred_total, Y_test_total, labels["classes"])
 
 
-def custom_run(is_locomotion, sensor_data_field, window_size, stride):
+def custom_run(dataset, is_locomotion, sensor_data_field, window_size, stride, fem_method="MEAN"):
     """
-    Run
+    Runs one instance of training
     :return:
     """
 
     SENSORS = ["AccelWristSensors", "ImuWristSensors", "FullBodySensors"]
     assert sensor_data_field in SENSORS
-    print("Loading Dataset...")
+
+    fem_methods = {
+        "MEAN": lambda x: np.mean(x, axis=0),
+        "RMS": lambda x: NotImplementedError,
+        "STD_DEV": lambda x: np.std(x, axis=0),
+        "MEAN_ABS_DEV": lambda x: NotImplementedError,
+        "FFT_REL_POW": lambda x: np.fft.fft(x, axis=0)
+    }
+    assert fem_method in fem_methods.keys()
 
     # Example inputs to cv_train_test function, you would use
     # these inputs for  problem 2
-    dataset = OpportunityDataset()
-    print("Done...")
 
     if is_locomotion:
         print("Locomotion labels")
@@ -154,24 +162,29 @@ def custom_run(is_locomotion, sensor_data_field, window_size, stride):
 
     print("Training...")
     print("Window Size: {}, stride:{} ".format(window_size, stride))
+
     cv_train_test(dataset, sensors, labels, window_size, stride,
-                  model_file_name="{}-W{}-S{}".format(sensor_data_field, window_size, stride))
+                  model_file_name="{}-W{}-S{}".format(sensor_data_field, window_size, stride),
+                  feature_extraction_method=fem_methods[fem_method])
 
 
-if __name__ == "__main__":
-
+def main_method():
+    print("Loading Dataset...")
+    dataset = OpportunityDataset()
+    print("Done...")
     print("Computing Imputation error...")
     imputation_diff = test_imputation(dataset)
     print("Imputation error: {} \n".format(imputation_diff))
-
-
     window_sizes = [5, 10, 15]
     strides = [2, 3, 5]
-
     print("Window Sizes: {}, Strides: {}".format(window_sizes, strides))
     for w_size in window_sizes:
         for stryd in strides:
-            custom_run(False, "FullBodySensors", w_size, stryd)
+            custom_run(dataset, False, "FullBodySensors", w_size, stryd)
+
+
+if __name__ == "__main__":
+    main_method()
 
 # Activity labels
 # cv_train_test(dataset, sensors, dataset.activity_labels)
