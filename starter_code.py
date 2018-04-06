@@ -139,23 +139,20 @@ def custom_run(dataset, is_locomotion, sensor_data_field, window_size, stride, f
 
     SENSORS = ["AccelWristSensors", "ImuWristSensors", "FullBodySensors"]
     assert sensor_data_field in SENSORS
+    print("Sensor: ", sensor_data_field)
 
     fem_methods = {
         "MEAN": lambda x: np.mean(x, axis=0),
-        "RMS": lambda x: NotImplementedError,
+        "RMS": lambda x: np.linalg.norm(x, axis=0)/np.sqrt(window_size),
         "STD_DEV": lambda x: np.std(x, axis=0),
         "MEAN_ABS_DEV": lambda x: NotImplementedError,
         "FFT_REL_POW": lambda x: np.fft.fft(x, axis=0)
     }
     assert fem_method in fem_methods.keys()
+    print("Feature Extraction Method: ", fem_method)
 
-    # Example inputs to cv_train_test function, you would use
-    # these inputs for  problem 2
-
-    if is_locomotion:
-        print("Locomotion labels")
-    else:
-        print("Activity labels")
+    # Example inputs to cv_train_test function, you would use these inputs for  problem 2
+    print("Locomotion labels" if is_locomotion else "Activity labels")
 
     sensors = dataset.data_map[sensor_data_field]
     labels = dataset.locomotion_labels if is_locomotion else dataset.activity_labels
@@ -190,8 +187,8 @@ def main_method():
     imputation_diff = test_imputation(dataset)
     print("Imputation error: {} \n".format(imputation_diff))
 
-    for w, s in window_stride_generator(False):
-        custom_run(dataset, False, "FullBodySensors", w, s)
+    for w, s in window_stride_generator():
+        custom_run(dataset, False, "FullBodySensors", w, s, "RMS")
 
 
 if __name__ == "__main__":
