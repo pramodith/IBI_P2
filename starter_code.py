@@ -9,6 +9,7 @@ from scipy import interpolate
 def create_io_pairs(inputs, labels,window_size,stride):
 	#Compute your windowed features here and labels. Right now
 	#it just returns the inputs and labels without changing anything.
+	cnt=0
 	X = inputs
 	Y = labels
 	final_x=[]
@@ -24,7 +25,7 @@ def create_io_pairs(inputs, labels,window_size,stride):
 			for r in inp_x:
 				coeff = fftfreq(r.shape[0])
 				hist, bins = np.histogram(coeff, weights=r, bins=10)
-				final_x.extend(hist)
+				final_x[cnt].extend(hist)
 			out_y=int(np.asscalar(mode(Y[i:i+window_size])[0][0]))
 			final_y.append(out_y)
 	#...
