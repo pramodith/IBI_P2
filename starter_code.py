@@ -22,7 +22,8 @@ def create_io_pairs(inputs, labels,window_size,stride):
 			inp_x = np.abs(rfft(inp_x,axis=0))
 			inp_x /= np.sum(inp_x,axis=0)
 			final_x.append([])
-			for r in inp_x:
+			tr_inp_x=inp_x.T
+			for r in tr_inp_x:
 				coeff = fftfreq(r.shape[0])
 				hist, bins = np.histogram(coeff, weights=r, bins=10)
 				final_x[cnt].extend(hist)
