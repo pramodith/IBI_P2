@@ -26,12 +26,13 @@ def create_io_pairs(inputs, labels,window_size,stride):
 				coeff = fftfreq(r.shape[0])
 				hist, bins = np.histogram(coeff, weights=r, bins=10)
 				final_x[cnt].extend(hist)
+			cnt+=1
 			out_y=int(np.asscalar(mode(Y[i:i+window_size])[0][0]))
 			final_y.append(out_y)
 	#...
 	#....
 
-	return final_x,final_y
+	return np.asarray(final_x),final_y
 
 
 def impute_data(arr):
