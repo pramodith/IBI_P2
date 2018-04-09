@@ -20,12 +20,15 @@ def create_io_pairs(inputs, labels,window_size,stride):
 			#inp_x=np.mean(inp_x,axis=0)
 			#inp_x=np.std(inp_x,axis=0)
 			inp_x = np.abs(rfft(inp_x,axis=0))
+
+			if np.count_nonzero(np.sum(inp_x,axis=0)==0)>0:
+				continue
 			inp_x /= np.sum(inp_x,axis=0)
 			final_x.append([])
 			tr_inp_x=inp_x.T
 			for r in tr_inp_x:
 				coeff = fftfreq(r.shape[0])
-				hist, bins = np.histogram(coeff, weights=r, bins=10)
+				hist, bins = np.histogram(coeff, weights=r, bins=5)
 				final_x[cnt].extend(hist)
 			cnt+=1
 			out_y=int(np.asscalar(mode(Y[i:i+window_size])[0][0]))
@@ -94,7 +97,7 @@ def train(X, Y):
 	#classifier which uniformly guesses a label is "trained"
 	#....
 	#....
-	clf=imu_wrist_p3.adaboostin(X,Y)
+	clf=imu_wrist_p3.random_forests(X,Y)
 	model = {"clf": clf}
 	#....
 	#....
@@ -151,32 +154,10 @@ if __name__ == "__main__":
 	import matplotlib.pyplot as plt
 	from scipy.fftpack import fftfreq, rfft
 
-	freq1 = 5
-	freq2 = 55
-	time = np.linspace(0, 10, 2000)
-	print(time)
-	Y = np.cos(freq1 * np.pi * time) + np.sin(freq2 * np.pi * time)
-
-	plt.subplot(211)
-	plt.plot(time, Y)
-
-	# Compute frequency bins
-	Y_f = np.abs(rfft(Y))
-	Y_f /= np.sum(Y_f)
-	W = fftfreq(time.size, d=time[1] - time[0])
-	print(W.shape)
-	print(Y_f)
-	hist, bins = np.histogram(W, weights=Y_f, bins=20)
-	width = 0.7 * (bins[1] - bins[0])
-	center = (bins[:-1] + bins[1:]) / 2
-
-	plt.subplot(212)
-	plt.bar(center, hist, align='center', width=width)
-	plt.show()
-	window_sizes=[5]
-	strides=[2]
+	window_sizes=[10]
+	strides=[3]
 	dataset = OpportunityDataset()
-	sensors = dataset.data_map["ImuWristSensors"]
+	sensors = dataset.data_map["FullBodySensors"]
 
 	print(test_imputation(dataset))
 	#Locomotion labels
